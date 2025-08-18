@@ -1,0 +1,8 @@
+C:\Users\helen\Favorites\Downloads\GreedSimulation\bin\Debug\GreedSimulation.exe.config
+C:\Users\helen\Favorites\Downloads\GreedSimulation\bin\Debug\GreedSimulation.exe
+C:\Users\helen\Favorites\Downloads\GreedSimulation\bin\Debug\GreedSimulation.pdb
+C:\Users\helen\Favorites\Downloads\GreedSimulation\obj\Debug\GreedSimulation.csproj.AssemblyReference.cache
+C:\Users\helen\Favorites\Downloads\GreedSimulation\obj\Debug\GreedSimulation.csproj.CoreCompileInputs.cache
+C:\Users\helen\Favorites\Downloads\GreedSimulation\obj\Debug\GreedSimulation.exe
+C:\Users\helen\Favorites\Downloads\GreedSimulation\obj\Debug\GreedSimulation.pdb
+C:\Users\helen\Favorites\Downloads\GreedSimulation\obj\Debug\GreedSimulation.exe.config
