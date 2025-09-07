@@ -42,22 +42,6 @@ namespace GreedSimulation
 
     internal class Program
     {
-        static void CentreText(string text)
-        {
-            int consoleWidth = Console.WindowWidth, consoleHeight = Console.WindowHeight;
-            if (text.Length >= consoleWidth)
-            {
-                Console.Write(text);
-                return;
-            }
-
-            int leftPadding = (int)Math.Floor((double)(consoleWidth - text.Length) / 2);
-            int topPadding = (int)Math.Floor((double)consoleHeight / 2);
-
-            Console.SetCursorPosition(leftPadding, topPadding);
-            Console.Write(text);
-        }
-
         static List<timeFrame> Simulate(double preyGrowthRate, double predatorGrowthRate, double preyCarryingCapacity, double predatorCarryingCapacity, double competitionCoefficient12, double competitionCoesfficient21, double initialPreyPopulation, double initialPredatorPopulation, double timeStep, double simulationTime)
         {
             List<timeFrame> results = new List<timeFrame>();
@@ -114,7 +98,7 @@ namespace GreedSimulation
 
             double range = maxTime - minTime;
             double interval = Math.Max(1, Math.Ceiling(range / 5));
-            if (interval % 5 != 0 && interval != 1) interval = Math.Ceiling(interval / 5) * 5; // Aim for nice numbers
+            if (interval % 5 != 0 && interval != 1) interval = Math.Ceiling(interval / 5) * 5;
 
             ChartArea chartArea = new ChartArea
             {
@@ -202,35 +186,144 @@ namespace GreedSimulation
             System.Windows.Forms.Application.Run(graphForm);
         }
 
+        static void WriteColouredText(string text)
+        {
+            int i = 0;
+            while (i < text.Length)
+            {
+                if (text[i] == '%' && i + 2 < text.Length)
+                {
+                    string marker = text.Substring(i, 3);
+                    switch (marker)
+                    {
+                        case "%bk": Console.ForegroundColor = ConsoleColor.Black; i += 3; break;
+                        case "%db": Console.ForegroundColor = ConsoleColor.DarkBlue; i += 3; break;
+                        case "%dg": Console.ForegroundColor = ConsoleColor.DarkGreen; i += 3; break;
+                        case "%dc": Console.ForegroundColor = ConsoleColor.DarkCyan; i += 3; break;
+                        case "%dr": Console.ForegroundColor = ConsoleColor.DarkRed; i += 3; break;
+                        case "%dm": Console.ForegroundColor = ConsoleColor.DarkMagenta; i += 3; break;
+                        case "%dy": Console.ForegroundColor = ConsoleColor.DarkYellow; i += 3; break;
+                        case "%gy": Console.ForegroundColor = ConsoleColor.Gray; i += 3; break;
+                        case "%dx": Console.ForegroundColor = ConsoleColor.DarkGray; i += 3; break;
+                        case "%bl": Console.ForegroundColor = ConsoleColor.Blue; i += 3; break;
+                        case "%gn": Console.ForegroundColor = ConsoleColor.Green; i += 3; break;
+                        case "%cy": Console.ForegroundColor = ConsoleColor.Cyan; i += 3; break;
+                        case "%rd": Console.ForegroundColor = ConsoleColor.Red; i += 3; break;
+                        case "%mg": Console.ForegroundColor = ConsoleColor.Magenta; i += 3; break;
+                        case "%yl": Console.ForegroundColor = ConsoleColor.Yellow; i += 3; break;
+                        case "%wh": Console.ForegroundColor = ConsoleColor.White; i += 3; break;
+                        default:
+                            Console.ResetColor();
+                            i++;
+                            break;
+                    }
+
+                    while (i < text.Length && text[i] != ' ')
+                    {
+                        Console.Write(text[i]);
+                        i++;
+                    }
+                    Console.ResetColor();
+                } else
+                {
+                    Console.Write(text[i]);
+                    i++;
+                }
+            }
+        }
+
+        static int GetPlainLength(string text)
+        {
+            int length = 0;
+            int i = 0;
+
+            while (i < text.Length)
+            {
+                if (text[i] == '%' && i + 2 < text.Length)
+                {
+                    string marker = text.Substring(i, 3);
+
+                    if (marker == "%bk" || marker == "%db" || marker == "%dg" || marker == "%dc" ||
+                        marker == "%dr" || marker == "%dm" || marker == "%dy" || marker == "%gy" ||
+                        marker == "%dx" || marker == "%bl" || marker == "%gn" || marker == "%cy" ||
+                        marker == "%rd" || marker == "%mg" || marker == "%yl" || marker == "%wh")
+                    {
+                        i += 3;
+
+                        while (i < text.Length && text[i] != ' ')
+                        {
+                            length++;
+                            i++;
+                        }
+                    } else
+                    {
+                        length++;
+                        i++;
+                    }
+                } else
+                {
+                    length++;
+                    i++;
+                }
+            }
+
+            return length;
+        }
+
+        static void CentreText(string text)
+        {
+            int consoleWidth = Console.WindowWidth;
+            int consoleHeight = Console.WindowHeight;
+            if (text.Length >= consoleWidth)
+            {
+                Console.Write(text);
+                return;
+            }
+
+            int leftPadding = (int)Math.Floor((double)(consoleWidth - text.Length) / 2);
+            int topPadding = (int)Math.Floor((double)consoleHeight / 2);
+
+            Console.SetCursorPosition(leftPadding, topPadding);
+            Console.Write(text);
+        }
+
+        static void PrintMenuLine(string originalText, int leftPadding, int rightPadding, int leftMargin, int row, bool isHighlighted)
+        {
+            string fullText = (isHighlighted ? "> " : "  ") + new string(' ', leftPadding) + originalText + new string(' ', rightPadding) + (isHighlighted ? " <" : "  ");
+            Console.SetCursorPosition(leftMargin, row);
+            WriteColouredText(fullText);
+        }
+
         static int Menu(string[] options)
         {
-            int currentOption = 0;
-            int longestOptionLength = options.Max(option => option.Length);
+            if (options.Length == 0) return -1;
 
-            int consoleWidth = Console.WindowWidth, consoleHeight = Console.WindowHeight;
-            int menuWidth = 2 + longestOptionLength + 2;
+            int currentOption = 0;
+            int longestOptionLength = options.Max(option => GetPlainLength(option));
+
+            int consoleWidth = Console.WindowWidth;
+            int consoleHeight = Console.WindowHeight;
             int startRow = (consoleHeight / 2) - (options.Length / 2);
 
-            string[] displayLines = new string[options.Length];
+            int[] leftPaddings = new int[options.Length];
+            int[] rightPaddings = new int[options.Length];
             for (int i = 0; i < options.Length; i++)
             {
-                string text = options[i];
-                int leftPadding = (int)Math.Floor((double)(longestOptionLength - text.Length) / 2);
-                int rightPadding = (int)Math.Ceiling((double)(longestOptionLength - text.Length) / 2);
-                string paddedText = new string(' ', leftPadding) + text + new string(' ', rightPadding);
-                displayLines[i] = $"  {paddedText}  ";
+                int plainLength = GetPlainLength(options[i]);
+                leftPaddings[i] = (int)Math.Floor((double)(longestOptionLength - plainLength) / 2);
+                rightPaddings[i] = (int)Math.Ceiling((double)(longestOptionLength - plainLength) / 2);
             }
 
             for (int i = 0; i < options.Length; i++)
             {
-                int leftMargin = (consoleWidth - displayLines[i].Length) / 2;
-                Console.SetCursorPosition(leftMargin, startRow + i);
-                Console.WriteLine(displayLines[i]);
+                int leftMargin = (consoleWidth - (GetPlainLength(options[i]) + leftPaddings[i] + rightPaddings[i] + 4)) / 2;
+                PrintMenuLine(options[i], leftPaddings[i], rightPaddings[i], leftMargin, startRow + i, false);
             }
 
-            int leftMarginCurrent = (consoleWidth - displayLines[currentOption].Length) / 2;
-            Console.SetCursorPosition(leftMarginCurrent, startRow + currentOption);
-            Console.WriteLine($"> {displayLines[currentOption].Substring(2, displayLines[currentOption].Length - 4)} <");
+            {
+                int leftMargin = (consoleWidth - (GetPlainLength(options[currentOption]) + leftPaddings[currentOption] + rightPaddings[currentOption] + 4)) / 2;
+                PrintMenuLine(options[currentOption], leftPaddings[currentOption], rightPaddings[currentOption], leftMargin, startRow + currentOption, true);
+            }
 
             string instructions = "Use arrow keys to navigate, Enter to select.";
             int instructionsLeftMargin = (int)Math.Floor((double)(consoleWidth - instructions.Length) / 2);
@@ -260,13 +353,15 @@ namespace GreedSimulation
 
                 if (currentOption != previousOption)
                 {
-                    int leftMarginPrevious = (consoleWidth - displayLines[previousOption].Length) / 2;
-                    Console.SetCursorPosition(leftMarginPrevious, startRow + previousOption);
-                    Console.WriteLine(displayLines[previousOption]);
+                    {
+                        int leftMargin = (consoleWidth - (GetPlainLength(options[previousOption]) + leftPaddings[previousOption] + rightPaddings[previousOption] + 4)) / 2;
+                        PrintMenuLine(options[previousOption], leftPaddings[previousOption], rightPaddings[previousOption], leftMargin, startRow + previousOption, false);
+                    }
 
-                    int leftMarginNewCurrent = (consoleWidth - displayLines[currentOption].Length) / 2;
-                    Console.SetCursorPosition(leftMarginNewCurrent, startRow + currentOption);
-                    Console.WriteLine($"> {displayLines[currentOption].Substring(2, displayLines[currentOption].Length - 4)} <");
+                    {
+                        int leftMargin = (consoleWidth - (GetPlainLength(options[currentOption]) + leftPaddings[currentOption] + rightPaddings[currentOption] + 4)) / 2;
+                        PrintMenuLine(options[currentOption], leftPaddings[currentOption], rightPaddings[currentOption], leftMargin, startRow + currentOption, true);
+                    }
                 }
             }
         }
@@ -354,7 +449,7 @@ namespace GreedSimulation
             while (true)
             {
                 Console.Clear();
-                string[] options = { "Default", "Oscillatory Coexistence", "Competitive Exclusion", "Stable Coexistence", "Back" };
+                string[] options = { "Default", "Oscillatory Coexistence", "Competitive Exclusion", "Stable Coexistence", "%rdBack" };
                 int selectedOption = Menu(options);
 
                 switch (selectedOption)
@@ -475,7 +570,7 @@ namespace GreedSimulation
             while (true)
             {
                 Console.Clear();
-                string[] options = { $"Prey Growth Rate: {preyGrowthRate}", $"Predator Growth Rate: {predatorGrowthRate}", $"Prey Carrying Capacity: {preyCarryingCapacity}", $"Predator Carrying Capacity: {predatorCarryingCapacity}", $"Competition Coeffiecient 12: {competitionCoefficient12}", $"Competition Coeffiecient 21: {competitionCoefficient21}", $"Initial Prey Population: {initialPreyPopulation}", $"Initial Predator Population: {initialPredatorPopulation}", $"Time Step: {timeStep}", $"Simulation Time: {simulationTime}", $"Display Graph: {displayGraph}", "Save Settings", "Cancel", "Load Preset Settings" };
+                string[] options = { $"Prey Growth Rate: {preyGrowthRate}", $"Predator Growth Rate: {predatorGrowthRate}", $"Prey Carrying Capacity: {preyCarryingCapacity}", $"Predator Carrying Capacity: {predatorCarryingCapacity}", $"Competition Coeffiecient 12: {competitionCoefficient12}", $"Competition Coeffiecient 21: {competitionCoefficient21}", $"Initial Prey Population: {initialPreyPopulation}", $"Initial Predator Population: {initialPredatorPopulation}", $"Time Step: {timeStep}", $"Simulation Time: {simulationTime}", $"Display Graph: {displayGraph}", "%gnSave %gnSettings", "%rdCancel", "%ylLoad %ylPreset %ylSettings" };
                 int selectedOption = Menu(options);
 
                 switch (selectedOption)
@@ -909,7 +1004,7 @@ namespace GreedSimulation
                 Console.Title = "Greed Simulation - Menu";
                 Console.Clear();
 
-                string[] options = { "Start Simulation", "Simulation Settings", "Exit Program" };
+                string[] options = { "%gnStart %gnSimulation", "%blSimulation %blSettings", "%rdExit %rdProgram" };
                 int selectedOption = Menu(options);
 
                 switch (selectedOption)
@@ -949,7 +1044,8 @@ namespace GreedSimulation
                         Console.Title = "Greed Simulation";
                         Console.Clear();
                         CentreText("Unknown option selected.");
-                        return;
+                        System.Threading.Thread.Sleep(1000);
+                        break;
                 }
             }
         }
