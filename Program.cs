@@ -34,6 +34,12 @@ namespace GreedSimulation
         public double predatorPopulation;
     }
 
+    public class valueBounds
+    {
+        public double lower;
+        public double upper;
+    }
+
     internal class Program
     {
         static void CentreText(string text)
@@ -268,13 +274,13 @@ namespace GreedSimulation
         static simulationSettings GetDefaultSettings()
         {
             simulationSettings settings = new simulationSettings();
-            settings.preyGrowthRate = 0.5;
-            settings.predatorGrowthRate = 0.3;
+            settings.preyGrowthRate = 0.8;
+            settings.predatorGrowthRate = 0.6;
             settings.preyCarryingCapacity = 100;
             settings.predatorCarryingCapacity = 80;
-            settings.competitionCoefficient12 = 0.6;
-            settings.competitionCoefficient21 = 0.8;
-            settings.initialPreyPopulation = 40;
+            settings.competitionCoefficient12 = 0.5;
+            settings.competitionCoefficient21 = 0.4;
+            settings.initialPreyPopulation = 50;
             settings.initialPredatorPopulation = 30;
             settings.timeStep = 0.1;
             settings.simulationTime = 50;
@@ -343,11 +349,133 @@ namespace GreedSimulation
             }
         }
 
-        static void SimulationSettings(ref double preyGrowthRate, ref double predatorGrowthRate, ref double preyCarryingCapacity, ref double predatorCarryingCapacity, ref double competitionCoefficient12, ref double competitionCoefficient21, ref double initialPreyPopulation, ref double initialPredatorPopulation, ref double timeStep, ref double simulationTime, ref bool displayGraph)
+        static void LoadSimulationPresets(ref double preyGrowthRate, ref double predatorGrowthRate, ref double preyCarryingCapacity, ref double predatorCarryingCapacity, ref double competitionCoefficient12, ref double competitionCoefficient21, ref double initialPreyPopulation, ref double initialPredatorPopulation, ref double timeStep, ref double simulationTime, ref bool displayGraph)
         {
             while (true)
             {
-                string[] options = { $"Prey Growth Rate: {preyGrowthRate}", $"Predator Growth Rate: {predatorGrowthRate}", $"Prey Carrying Capacity: {preyCarryingCapacity}", $"Predator Carrying Capacity: {predatorCarryingCapacity}", $"Competition Coeffiecient 12: {competitionCoefficient12}", $"Competition Coeffiecient 21: {competitionCoefficient21}", $"Initial Prey Population: {initialPreyPopulation}", $"Initial Predator Population: {initialPredatorPopulation}", $"Time Step: {timeStep}", $"Simulation Time: {simulationTime}", $"Display Graph: {displayGraph}", "Save Settings", "Cancel" };
+                Console.Clear();
+                string[] options = { "Default", "Oscillatory Coexistence", "Competitive Exclusion", "Stable Coexistence", "Back" };
+                int selectedOption = Menu(options);
+
+                switch (selectedOption)
+                {
+                    case 0:
+                        {
+                            simulationSettings settings = LoadSettings("Default.bin");
+
+                            preyGrowthRate = settings.preyGrowthRate;
+                            predatorGrowthRate = settings.predatorGrowthRate;
+                            preyCarryingCapacity = settings.preyCarryingCapacity;
+                            predatorCarryingCapacity = settings.predatorCarryingCapacity;
+                            competitionCoefficient12 = settings.competitionCoefficient12;
+                            competitionCoefficient21 = settings.competitionCoefficient21;
+                            initialPreyPopulation = settings.initialPreyPopulation;
+                            initialPredatorPopulation = settings.initialPredatorPopulation;
+                            timeStep = settings.timeStep;
+                            simulationTime = settings.simulationTime;
+                            displayGraph = settings.displayGraph;
+
+                            Console.Clear();
+                            CentreText("Loaded the Default settings.");
+                            System.Threading.Thread.Sleep(1500);
+                            return;
+                        }
+                    case 1:
+                        {
+                            simulationSettings settings = LoadSettings("OscillatoryCoexistence.bin");
+
+                            preyGrowthRate = settings.preyGrowthRate;
+                            predatorGrowthRate = settings.predatorGrowthRate;
+                            preyCarryingCapacity = settings.preyCarryingCapacity;
+                            predatorCarryingCapacity = settings.predatorCarryingCapacity;
+                            competitionCoefficient12 = settings.competitionCoefficient12;
+                            competitionCoefficient21 = settings.competitionCoefficient21;
+                            initialPreyPopulation = settings.initialPreyPopulation;
+                            initialPredatorPopulation = settings.initialPredatorPopulation;
+                            timeStep = settings.timeStep;
+                            simulationTime = settings.simulationTime;
+                            displayGraph = settings.displayGraph;
+
+                            Console.Clear();
+                            CentreText("Loaded the Oscillatory Coexistence preset.");
+                            System.Threading.Thread.Sleep(1500);
+                            return;
+                        }
+                    case 2:
+                        {
+                            simulationSettings settings = LoadSettings("CompetitiveExclusion.bin");
+
+                            preyGrowthRate = settings.preyGrowthRate;
+                            predatorGrowthRate = settings.predatorGrowthRate;
+                            preyCarryingCapacity = settings.preyCarryingCapacity;
+                            predatorCarryingCapacity = settings.predatorCarryingCapacity;
+                            competitionCoefficient12 = settings.competitionCoefficient12;
+                            competitionCoefficient21 = settings.competitionCoefficient21;
+                            initialPreyPopulation = settings.initialPreyPopulation;
+                            initialPredatorPopulation = settings.initialPredatorPopulation;
+                            timeStep = settings.timeStep;
+                            simulationTime = settings.simulationTime;
+                            displayGraph = settings.displayGraph;
+
+                            Console.Clear();
+                            CentreText("Loaded the Competitive Exclusion preset.");
+                            System.Threading.Thread.Sleep(1500);
+                            return;
+                        }
+                    case 3:
+                        {
+                            simulationSettings settings = LoadSettings("StableCoexistence.bin");
+
+                            preyGrowthRate = settings.preyGrowthRate;
+                            predatorGrowthRate = settings.predatorGrowthRate;
+                            preyCarryingCapacity = settings.preyCarryingCapacity;
+                            predatorCarryingCapacity = settings.predatorCarryingCapacity;
+                            competitionCoefficient12 = settings.competitionCoefficient12;
+                            competitionCoefficient21 = settings.competitionCoefficient21;
+                            initialPreyPopulation = settings.initialPreyPopulation;
+                            initialPredatorPopulation = settings.initialPredatorPopulation;
+                            timeStep = settings.timeStep;
+                            simulationTime = settings.simulationTime;
+                            displayGraph = settings.displayGraph;
+
+                            Console.Clear();
+                            CentreText("Loaded the Stable Coexistence preset.");
+                            System.Threading.Thread.Sleep(1500);
+                            return;
+                        }
+                    case 4:
+                        {
+                            Console.Clear();
+                            return;
+                        }
+                    default:
+                        Console.Clear();
+                        CentreText("Unknown option selected.");
+                        break;
+                }
+            }
+        }
+
+        static void SimulationSettings(ref double preyGrowthRate, ref double predatorGrowthRate, ref double preyCarryingCapacity, ref double predatorCarryingCapacity, ref double competitionCoefficient12, ref double competitionCoefficient21, ref double initialPreyPopulation, ref double initialPredatorPopulation, ref double timeStep, ref double simulationTime, ref bool displayGraph)
+        {
+            Dictionary<string, valueBounds> bounds = new Dictionary<string, valueBounds>
+            {
+                { "preyGrowthRate", new valueBounds { lower = 0.1, upper = 2 } },
+                { "predatorGrowthRate", new valueBounds { lower = 0.1, upper = 2 } },
+                { "preyCarryingCapacity", new valueBounds { lower = 50, upper = 1000 } },
+                { "predatorCarryingCapacity", new valueBounds { lower = 50, upper = 1000 } },
+                { "competitionCoefficient12", new valueBounds { lower = 0.1, upper = 1.5 } },
+                { "competitionCoefficient21", new valueBounds { lower = 0.1, upper = 1.5 } },
+                { "initialPreyPopulation", new valueBounds { lower = 10, upper = 500 } },
+                { "initialPredatorPopulation", new valueBounds { lower = 10, upper = 500 } },
+                { "timeStep", new valueBounds { lower = 0.01, upper = 1 } },
+                { "simulationTime", new valueBounds { lower = 10, upper = 100 } },
+            };
+
+            while (true)
+            {
+                Console.Clear();
+                string[] options = { $"Prey Growth Rate: {preyGrowthRate}", $"Predator Growth Rate: {predatorGrowthRate}", $"Prey Carrying Capacity: {preyCarryingCapacity}", $"Predator Carrying Capacity: {predatorCarryingCapacity}", $"Competition Coeffiecient 12: {competitionCoefficient12}", $"Competition Coeffiecient 21: {competitionCoefficient21}", $"Initial Prey Population: {initialPreyPopulation}", $"Initial Predator Population: {initialPredatorPopulation}", $"Time Step: {timeStep}", $"Simulation Time: {simulationTime}", $"Display Graph: {displayGraph}", "Save Settings", "Cancel", "Load Preset Settings" };
                 int selectedOption = Menu(options);
 
                 switch (selectedOption)
@@ -361,6 +489,19 @@ namespace GreedSimulation
                             if (double.TryParse(input, out double newValue) && newValue >= 0)
                             {
                                 preyGrowthRate = newValue;
+
+                                if (newValue < bounds["preyGrowthRate"].lower)
+                                {
+                                    Console.Clear();
+                                    CentreText($"{newValue} is lower than our recommended of {bounds["preyGrowthRate"].lower} for the Prey Growth Rate.");
+                                    System.Threading.Thread.Sleep(1500);
+                                } else if (newValue > bounds["preyGrowthRate"].upper)
+                                {
+                                    Console.Clear();
+                                    CentreText($"{newValue} is higher than our recommended of {bounds["preyGrowthRate"].upper} for the Prey Growth Rate.");
+                                    System.Threading.Thread.Sleep(1500);
+                                }
+
                                 break;
                             }
                             else
@@ -378,6 +519,20 @@ namespace GreedSimulation
                             if (double.TryParse(input, out double newValue) && newValue >= 0)
                             {
                                 predatorGrowthRate = newValue;
+
+                                if (newValue < bounds["predatorGrowthRate"].lower)
+                                {
+                                    Console.Clear();
+                                    CentreText($"{newValue} is lower than our recommended of {bounds["predatorGrowthRate"].lower} for the Predator Growth Rate.");
+                                    System.Threading.Thread.Sleep(1500);
+                                }
+                                else if (newValue > bounds["predatorGrowthRate"].upper)
+                                {
+                                    Console.Clear();
+                                    CentreText($"{newValue} is higher than our recommended of {bounds["predatorGrowthRate"].upper} for the Predator Growth Rate.");
+                                    System.Threading.Thread.Sleep(1500);
+                                }
+
                                 break;
                             }
                             else
@@ -395,6 +550,20 @@ namespace GreedSimulation
                             if (double.TryParse(input, out double newValue) && newValue >= 0)
                             {
                                 preyCarryingCapacity = newValue;
+
+                                if (newValue < bounds["preyCarryingCapacity"].lower)
+                                {
+                                    Console.Clear();
+                                    CentreText($"{newValue} is lower than our recommended of {bounds["preyCarryingCapacity"].lower} for the Prey Carrying Capacity.");
+                                    System.Threading.Thread.Sleep(1500);
+                                }
+                                else if (newValue > bounds["preyCarryingCapacity"].upper)
+                                {
+                                    Console.Clear();
+                                    CentreText($"{newValue} is higher than our recommended of {bounds["preyCarryingCapacity"].upper} for the Prey Carrying Capacity.");
+                                    System.Threading.Thread.Sleep(1500);
+                                }
+
                                 break;
                             }
                             else
@@ -412,6 +581,20 @@ namespace GreedSimulation
                             if (double.TryParse(input, out double newValue) && newValue >= 0)
                             {
                                 predatorCarryingCapacity = newValue;
+
+                                if (newValue < bounds["predatorCarryingCapacity"].lower)
+                                {
+                                    Console.Clear();
+                                    CentreText($"{newValue} is lower than our recommended of {bounds["predatorCarryingCapacity"].lower} for the Predator Carrying Capacity.");
+                                    System.Threading.Thread.Sleep(1500);
+                                }
+                                else if (newValue > bounds["predatorCarryingCapacity"].upper)
+                                {
+                                    Console.Clear();
+                                    CentreText($"{newValue} is higher than our recommended of {bounds["predatorCarryingCapacity"].upper} for the Predator Carrying Capacity.");
+                                    System.Threading.Thread.Sleep(1500);
+                                }
+
                                 break;
                             }
                             else
@@ -429,6 +612,20 @@ namespace GreedSimulation
                             if (double.TryParse(input, out double newValue) && newValue >= 0)
                             {
                                 competitionCoefficient12 = newValue;
+
+                                if (newValue < bounds["competitionCoefficient12"].lower)
+                                {
+                                    Console.Clear();
+                                    CentreText($"{newValue} is lower than our recommended of {bounds["competitionCoefficient12"].lower} for Competition Coefficient 12.");
+                                    System.Threading.Thread.Sleep(1500);
+                                }
+                                else if (newValue > bounds["competitionCoefficient12"].upper)
+                                {
+                                    Console.Clear();
+                                    CentreText($"{newValue} is higher than our recommended of {bounds["competitionCoefficient12"].upper} for Competition Coefficient 12.");
+                                    System.Threading.Thread.Sleep(1500);
+                                }
+
                                 break;
                             }
                             else
@@ -446,6 +643,20 @@ namespace GreedSimulation
                             if (double.TryParse(input, out double newValue) && newValue >= 0)
                             {
                                 competitionCoefficient21 = newValue;
+
+                                if (newValue < bounds["competitionCoefficient21"].lower)
+                                {
+                                    Console.Clear();
+                                    CentreText($"{newValue} is lower than our recommended of {bounds["competitionCoefficient21"].lower} for Competition Coefficient 21.");
+                                    System.Threading.Thread.Sleep(1500);
+                                }
+                                else if (newValue > bounds["competitionCoefficient21"].upper)
+                                {
+                                    Console.Clear();
+                                    CentreText($"{newValue} is higher than our recommended of {bounds["competitionCoefficient21"].upper} for Competition Coefficient 21.");
+                                    System.Threading.Thread.Sleep(1500);
+                                }
+
                                 break;
                             }
                             else
@@ -463,6 +674,20 @@ namespace GreedSimulation
                             if (double.TryParse(input, out double newValue) && newValue >= 0)
                             {
                                 initialPreyPopulation = newValue;
+
+                                if (newValue < bounds["initialPreyPopulation"].lower)
+                                {
+                                    Console.Clear();
+                                    CentreText($"{newValue} is lower than our recommended of {bounds["initialPreyPopulation"].lower} for the Initial Prey Population.");
+                                    System.Threading.Thread.Sleep(1500);
+                                }
+                                else if (newValue > bounds["initialPreyPopulation"].upper)
+                                {
+                                    Console.Clear();
+                                    CentreText($"{newValue} is higher than our recommended of {bounds["initialPreyPopulation"].upper} for the Initial Prey Population.");
+                                    System.Threading.Thread.Sleep(1500);
+                                }
+
                                 break;
                             }
                             else
@@ -480,6 +705,20 @@ namespace GreedSimulation
                             if (double.TryParse(input, out double newValue) && newValue >= 0)
                             {
                                 initialPredatorPopulation = newValue;
+
+                                if (newValue < bounds["initialPredatorPopulation"].lower)
+                                {
+                                    Console.Clear();
+                                    CentreText($"{newValue} is lower than our recommended of {bounds["initialPredatorPopulation"].lower} for the Initial Predator Population.");
+                                    System.Threading.Thread.Sleep(1500);
+                                }
+                                else if (newValue > bounds["initialPredatorPopulation"].upper)
+                                {
+                                    Console.Clear();
+                                    CentreText($"{newValue} is higher than our recommended of {bounds["initialPredatorPopulation"].upper} for the Initial Predator Population.");
+                                    System.Threading.Thread.Sleep(1500);
+                                }
+
                                 break;
                             }
                             else
@@ -497,6 +736,20 @@ namespace GreedSimulation
                             if (double.TryParse(input, out double newValue) && newValue >= 0)
                             {
                                 timeStep = newValue;
+
+                                if (newValue < bounds["timeStep"].lower)
+                                {
+                                    Console.Clear();
+                                    CentreText($"{newValue} is lower than our recommended of {bounds["timeStep"].lower} for the Time Step.");
+                                    System.Threading.Thread.Sleep(1500);
+                                }
+                                else if (newValue > bounds["timeStep"].upper)
+                                {
+                                    Console.Clear();
+                                    CentreText($"{newValue} is higher than our recommended of {bounds["timeStep"].upper} for the Time Step.");
+                                    System.Threading.Thread.Sleep(1500);
+                                }
+
                                 break;
                             }
                             else
@@ -514,6 +767,20 @@ namespace GreedSimulation
                             if (double.TryParse(input, out double newValue) && newValue >= 0)
                             {
                                 simulationTime = newValue;
+
+                                if (newValue < bounds["simulationTime"].lower)
+                                {
+                                    Console.Clear();
+                                    CentreText($"{newValue} is lower than our recommended of {bounds["simulationTime"].lower} for the Simulation Time.");
+                                    System.Threading.Thread.Sleep(1500);
+                                }
+                                else if (newValue > bounds["simulationTime"].upper)
+                                {
+                                    Console.Clear();
+                                    CentreText($"{newValue} is higher than our recommended of {bounds["simulationTime"].upper} for the Simulation Time.");
+                                    System.Threading.Thread.Sleep(1500);
+                                }
+
                                 break;
                             }
                             else
@@ -599,6 +866,11 @@ namespace GreedSimulation
                             System.Threading.Thread.Sleep(1500);
                             return;
                         }
+                    case 13:
+                        {
+                            LoadSimulationPresets(ref preyGrowthRate, ref predatorGrowthRate, ref preyCarryingCapacity, ref predatorCarryingCapacity, ref competitionCoefficient12, ref competitionCoefficient21, ref initialPreyPopulation, ref initialPredatorPopulation, ref timeStep, ref simulationTime, ref displayGraph);
+                            break;
+                        }
                     default:
                         Console.Clear();
                         CentreText("Unknown option selected.");
@@ -612,10 +884,14 @@ namespace GreedSimulation
         {
             simulationSettings settings = LoadSettings("settings.bin");
 
-            double preyGrowthRate = settings.preyGrowthRate, predatorGrowthRate = settings.predatorGrowthRate;
-            double preyCarryingCapacity = settings.preyCarryingCapacity, predatorCarryingCapacity = settings.predatorCarryingCapacity;
-            double competitionCoefficient12 = settings.competitionCoefficient12, competitionCoefficient21 = settings.competitionCoefficient21;
-            double initialPreyPopulation = settings.initialPreyPopulation, initialPredatorPopulation = settings.initialPredatorPopulation;
+            double preyGrowthRate = settings.preyGrowthRate;
+            double predatorGrowthRate = settings.predatorGrowthRate;
+            double preyCarryingCapacity = settings.preyCarryingCapacity;
+            double predatorCarryingCapacity = settings.predatorCarryingCapacity;
+            double competitionCoefficient12 = settings.competitionCoefficient12;
+            double competitionCoefficient21 = settings.competitionCoefficient21;
+            double initialPreyPopulation = settings.initialPreyPopulation;
+            double initialPredatorPopulation = settings.initialPredatorPopulation;
             double timeStep = settings.timeStep;
             double simulationTime = settings.simulationTime;
             bool displayGraph = settings.displayGraph;
@@ -630,6 +906,7 @@ namespace GreedSimulation
             {
                 List<timeFrame> results = new List<timeFrame>();
 
+                Console.Title = "Greed Simulation - Menu";
                 Console.Clear();
 
                 string[] options = { "Start Simulation", "Simulation Settings", "Exit Program" };
@@ -638,6 +915,7 @@ namespace GreedSimulation
                 switch (selectedOption)
                 {
                     case 0:
+                        Console.Title = "Greed Simulation - Simulation";
                         Console.Clear();
                         results = Simulate(preyGrowthRate, predatorGrowthRate, preyCarryingCapacity, predatorCarryingCapacity, competitionCoefficient12, competitionCoefficient21, initialPreyPopulation, initialPredatorPopulation, timeStep, simulationTime);
                         
@@ -657,15 +935,18 @@ namespace GreedSimulation
                         Console.ReadKey();
                         break;
                     case 1:
+                        Console.Title = "Greed Simulation - Settings";
                         Console.Clear();
                         SimulationSettings(ref preyGrowthRate, ref predatorGrowthRate, ref preyCarryingCapacity, ref predatorCarryingCapacity, ref competitionCoefficient12, ref competitionCoefficient21, ref initialPreyPopulation, ref initialPredatorPopulation, ref timeStep, ref simulationTime, ref displayGraph);
                         break;
                     case 2:
+                        Console.Title = "Greed Simulation - Exiting";
                         Console.Clear();
                         CentreText("Exiting program...");
                         System.Threading.Thread.Sleep(1000);
                         return;
                     default:
+                        Console.Title = "Greed Simulation";
                         Console.Clear();
                         CentreText("Unknown option selected.");
                         return;
