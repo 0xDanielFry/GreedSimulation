@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.IO;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
-using System.Drawing;
 using static System.Net.Mime.MediaTypeNames;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
 
 namespace GreedSimulation
 {
@@ -59,7 +60,7 @@ namespace GreedSimulation
 
             results.Add(new timeFrame { time = 0, preyPopulation = preyPopulation, predatorPopulation = predatorPopulation });
 
-            for (double time = 0; time <= simulationTime; time += timeStep)
+            for (double time = timeStep; time <= simulationTime; time += timeStep)
             {
                 time = Math.Round(time, 3);
                 double dx = preyGrowthRate * preyPopulation * (1 - (preyPopulation + competitionCoefficient12 * predatorPopulation) / preyCarryingCapacity);
@@ -98,29 +99,58 @@ namespace GreedSimulation
 
             Chart chart = new Chart
             {
-                Dock = DockStyle.Fill
+                Dock = DockStyle.Fill,
+                BackColor = Color.White
             };
+
+            double minTime = Math.Floor(results.Min(result => result.time));
+            double maxTime = results.Max(result => result.time);
+
+            double range = maxTime - minTime;
+            double interval = Math.Max(1, Math.Ceiling(range / 5));
+            if (interval % 5 != 0 && interval != 1) interval = Math.Ceiling(interval / 5) * 5; // Aim for nice numbers
 
             ChartArea chartArea = new ChartArea
             {
                 Name = "MainArea",
-                AxisX = { Title = "Time" },
-                AxisY = { Title = "Population" }
+                AxisX = { 
+                    Title = "Time",
+                    Minimum = minTime,
+                    Maximum = maxTime,
+                    Interval = interval,
+                    IntervalAutoMode = IntervalAutoMode.FixedCount,
+                    LabelStyle = { Format = "0" }
+                },
+                AxisY = { 
+                    Title = "Population"
+                }
             };
             chart.ChartAreas.Add(chartArea);
+
+            Legend legend = new Legend
+            {
+                Name = "MainLegend",
+                BackColor = Color.White,
+                Docking = Docking.Top,
+                Alignment = StringAlignment.Center,
+                LegendStyle = LegendStyle.Row
+            };
+            chart.Legends.Add(legend);
 
             Series preySeries = new Series
             {
                 Name = "Prey",
                 Color = System.Drawing.Color.Blue,
-                ChartType = SeriesChartType.Line
+                ChartType = SeriesChartType.Line,
+                Legend = "MainLegend"
             };
 
             Series predatorSeries = new Series
             {
                 Name = "Predator",
                 Color = System.Drawing.Color.Orange,
-                ChartType = SeriesChartType.Line
+                ChartType = SeriesChartType.Line,
+                Legend = "MainLegend"
             };
 
             foreach (var result in results)
@@ -171,69 +201,66 @@ namespace GreedSimulation
             int currentOption = 0;
             int longestOptionLength = options.Max(option => option.Length);
 
+            int consoleWidth = Console.WindowWidth, consoleHeight = Console.WindowHeight;
+            int menuWidth = 2 + longestOptionLength + 2;
+            int startRow = (consoleHeight / 2) - (options.Length / 2);
+
+            string[] displayLines = new string[options.Length];
+            for (int i = 0; i < options.Length; i++)
+            {
+                string text = options[i];
+                int leftPadding = (int)Math.Floor((double)(longestOptionLength - text.Length) / 2);
+                int rightPadding = (int)Math.Ceiling((double)(longestOptionLength - text.Length) / 2);
+                string paddedText = new string(' ', leftPadding) + text + new string(' ', rightPadding);
+                displayLines[i] = $"  {paddedText}  ";
+            }
+
+            for (int i = 0; i < options.Length; i++)
+            {
+                int leftMargin = (consoleWidth - displayLines[i].Length) / 2;
+                Console.SetCursorPosition(leftMargin, startRow + i);
+                Console.WriteLine(displayLines[i]);
+            }
+
+            int leftMarginCurrent = (consoleWidth - displayLines[currentOption].Length) / 2;
+            Console.SetCursorPosition(leftMarginCurrent, startRow + currentOption);
+            Console.WriteLine($"> {displayLines[currentOption].Substring(2, displayLines[currentOption].Length - 4)} <");
+
+            string instructions = "Use arrow keys to navigate, Enter to select.";
+            int instructionsLeftMargin = (int)Math.Floor((double)(consoleWidth - instructions.Length) / 2);
+            int instructionsRow = startRow + options.Length + 4;
+            Console.SetCursorPosition(instructionsLeftMargin, instructionsRow);
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.WriteLine(instructions);
+            Console.ResetColor();
+
             while (true)
             {
-                Console.Clear();
-                
-                int consoleWidth = Console.WindowWidth, consoleHeight = Console.WindowHeight;
-                int menuWidth = 2 + longestOptionLength + 2;
-                int startRow = (consoleHeight / 2) - (options.Length / 2);
-
-                for (int i = 0; i < options.Length; i++)
-                {
-                    string text = options[i];
-
-                    int leftPaddingInside = (int)Math.Floor((double)(longestOptionLength - text.Length) / 2);
-                    int rightPaddingInside = (int)Math.Ceiling((double)(longestOptionLength - text.Length) / 2);
-
-                    string paddedText = new string(' ', leftPaddingInside) + text + new string(' ', rightPaddingInside);
-                    string displayText;
-
-                    if (i == currentOption)
-                    {
-                        displayText = $"> {paddedText} <";
-                    }
-                    else
-                    {
-                        displayText = $"  {paddedText}  ";
-                    }
-
-                    int leftMargin = (consoleWidth - displayText.Length) / 2;
-
-                    Console.SetCursorPosition(leftMargin, startRow + i);
-                    if (i == currentOption)
-                    {
-                        Console.WriteLine(displayText);
-                    } else
-                    {
-                        Console.WriteLine(displayText);
-                    }
-                }
-
-                string instructions = "Use ↑ and ↓ to navigate, Enter to select.";
-                int instructionsLeftMargin = (int)Math.Floor((double)(consoleWidth - instructions.Length) / 2);
-                int instructionsRow = startRow + options.Length + 4;
-
-                Console.SetCursorPosition(instructionsLeftMargin, instructionsRow);
-                Console.ForegroundColor = ConsoleColor.DarkGray;
-                Console.WriteLine(instructions);
-                Console.ResetColor();
-
                 ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+                int previousOption = currentOption;
 
                 if (keyInfo.Key == ConsoleKey.UpArrow)
                 {
                     currentOption--;
                     if (currentOption < 0) currentOption = options.Length - 1;
-                }
-                else if (keyInfo.Key == ConsoleKey.DownArrow)
+                } else if (keyInfo.Key == ConsoleKey.DownArrow)
                 {
                     currentOption++;
                     if (currentOption >= options.Length) currentOption = 0;
-                }
-                else if (keyInfo.Key == ConsoleKey.Enter)
+                } else if (keyInfo.Key == ConsoleKey.Enter)
                 {
                     return currentOption;
+                }
+
+                if (currentOption != previousOption)
+                {
+                    int leftMarginPrevious = (consoleWidth - displayLines[previousOption].Length) / 2;
+                    Console.SetCursorPosition(leftMarginPrevious, startRow + previousOption);
+                    Console.WriteLine(displayLines[previousOption]);
+
+                    int leftMarginNewCurrent = (consoleWidth - displayLines[currentOption].Length) / 2;
+                    Console.SetCursorPosition(leftMarginNewCurrent, startRow + currentOption);
+                    Console.WriteLine($"> {displayLines[currentOption].Substring(2, displayLines[currentOption].Length - 4)} <");
                 }
             }
         }
@@ -594,6 +621,7 @@ namespace GreedSimulation
             bool displayGraph = settings.displayGraph;
 
             Console.Title = "Greed Simulation";
+            Console.CursorVisible = false;
             Console.Clear();
             CentreText("Welcome to the Greed Simulation!");
             System.Threading.Thread.Sleep(2000);
@@ -601,6 +629,8 @@ namespace GreedSimulation
             while (true)
             {
                 List<timeFrame> results = new List<timeFrame>();
+
+                Console.Clear();
 
                 string[] options = { "Start Simulation", "Simulation Settings", "Exit Program" };
                 int selectedOption = Menu(options);
