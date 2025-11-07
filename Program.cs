@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -44,31 +44,37 @@ namespace GreedSimulation
     {
         static List<timeFrame> Simulate(double preyGrowthRate, double predatorGrowthRate, double preyCarryingCapacity, double predatorCarryingCapacity, double competitionCoefficient12, double competitionCoesfficient21, double initialPreyPopulation, double initialPredatorPopulation, double timeStep, double simulationTime)
         {
+            // These are the values that will be edited during the simulation running
             List<timeFrame> results = new List<timeFrame>();
             double preyPopulation = initialPreyPopulation;
             double predatorPopulation = initialPredatorPopulation;
 
+            // Add the inital data to the results
             results.Add(new timeFrame { time = 0, preyPopulation = preyPopulation, predatorPopulation = predatorPopulation });
 
             for (double time = timeStep; time <= simulationTime; time += timeStep)
             {
-                time = Math.Round(time, 3);
+                time = Math.Round(time, 3); // To avoid the random 0.00000000001 thing
                 double dx = preyGrowthRate * preyPopulation * (1 - (preyPopulation + competitionCoefficient12 * predatorPopulation) / preyCarryingCapacity);
                 double dy = predatorGrowthRate * predatorPopulation * (1 - (predatorPopulation + competitionCoesfficient21 * preyPopulation) / predatorCarryingCapacity);
 
                 preyPopulation += dx * timeStep;
                 predatorPopulation += dy * timeStep;
 
+                // Make sure it's greater then 0
                 preyPopulation = Math.Max(preyPopulation, 0);
                 predatorPopulation = Math.Max(predatorPopulation, 0);
 
+                // Round to 3 D.P.
                 preyPopulation = Math.Round(preyPopulation, 3);
                 predatorPopulation = Math.Round(predatorPopulation, 3);
 
                 Console.WriteLine($"Time: {Math.Round(time, 3)}, Prey: {preyPopulation}, Predators: {predatorPopulation}");
 
+                // Add the results to the results table
                 results.Add(new timeFrame { time = Math.Round(time, 3), preyPopulation = Math.Round(preyPopulation, 3), predatorPopulation = Math.Round(predatorPopulation, 3) });
 
+                // If either population is less then one it should stop (can't reproduce otherwise)
                 if (preyPopulation <= 1 || predatorPopulation <= 1)
                 {
                     break;
@@ -96,6 +102,7 @@ namespace GreedSimulation
             double minTime = Math.Floor(results.Min(result => result.time));
             double maxTime = results.Max(result => result.time);
 
+            // Find a good range so the graph looks good
             double range = maxTime - minTime;
             double interval = Math.Max(1, Math.Ceiling(range / 5));
             if (interval % 5 != 0 && interval != 1) interval = Math.Ceiling(interval / 5) * 5;
@@ -143,6 +150,7 @@ namespace GreedSimulation
                 Legend = "MainLegend"
             };
 
+            // Add each point in the results to the graph series
             foreach (var result in results)
             {
                 preySeries.Points.AddXY(result.time, result.preyPopulation);
@@ -154,6 +162,7 @@ namespace GreedSimulation
 
             graphForm.Controls.Add(chart);
 
+            // Create save button and function
             Button saveButton = new Button
             {
                 Text = "Save Graph",
@@ -195,7 +204,7 @@ namespace GreedSimulation
                 {
                     string marker = text.Substring(i, 3);
                     switch (marker)
-                    {
+                    {   // Every colour from ConsoleColor
                         case "%bk": Console.ForegroundColor = ConsoleColor.Black; i += 3; break;
                         case "%db": Console.ForegroundColor = ConsoleColor.DarkBlue; i += 3; break;
                         case "%dg": Console.ForegroundColor = ConsoleColor.DarkGreen; i += 3; break;
@@ -212,7 +221,7 @@ namespace GreedSimulation
                         case "%mg": Console.ForegroundColor = ConsoleColor.Magenta; i += 3; break;
                         case "%yl": Console.ForegroundColor = ConsoleColor.Yellow; i += 3; break;
                         case "%wh": Console.ForegroundColor = ConsoleColor.White; i += 3; break;
-                        default:
+                        default: // Reset the colour if its not in the list.
                             Console.ResetColor();
                             i++;
                             break;
@@ -232,6 +241,7 @@ namespace GreedSimulation
             }
         }
 
+        // Needed for centring text, counts the length of text without the colouring stuff
         static int GetPlainLength(string text)
         {
             int length = 0;
@@ -289,22 +299,33 @@ namespace GreedSimulation
 
         static void PrintMenuLine(string originalText, int leftPadding, int rightPadding, int leftMargin, int row, bool isHighlighted)
         {
-            string fullText = (isHighlighted ? "> " : "  ") + new string(' ', leftPadding) + originalText + new string(' ', rightPadding) + (isHighlighted ? " <" : "  ");
+            // Depending if it should be highlighted depends on what the full text is, both are the same length in characters
+            string fullText;
+            if (isHighlighted)
+            {
+                fullText = "> " + new string(' ', leftPadding) + originalText + new string(' ', rightPadding) + " <";
+            } else
+            {
+                fullText = "  " + new string(' ', leftPadding) + originalText + new string(' ', rightPadding) + "  ";
+            }
+
             Console.SetCursorPosition(leftMargin, row);
             WriteColouredText(fullText);
         }
 
         static int Menu(string[] options)
         {
-            if (options.Length == 0) return -1;
+            if (options.Length == 0) return -1; // If options is some how blank, just return -1 (no option)
 
             int currentOption = 0;
             int longestOptionLength = options.Max(option => GetPlainLength(option));
 
+            // Get dimensions to find the row text should start on
             int consoleWidth = Console.WindowWidth;
             int consoleHeight = Console.WindowHeight;
             int startRow = (consoleHeight / 2) - (options.Length / 2);
 
+            // Find the padding that should be on each side of the menu options
             int[] leftPaddings = new int[options.Length];
             int[] rightPaddings = new int[options.Length];
             for (int i = 0; i < options.Length; i++)
@@ -314,17 +335,20 @@ namespace GreedSimulation
                 rightPaddings[i] = (int)Math.Ceiling((double)(longestOptionLength - plainLength) / 2);
             }
 
+            // Initially display all of the menu options
             for (int i = 0; i < options.Length; i++)
             {
                 int leftMargin = (consoleWidth - (GetPlainLength(options[i]) + leftPaddings[i] + rightPaddings[i] + 4)) / 2;
                 PrintMenuLine(options[i], leftPaddings[i], rightPaddings[i], leftMargin, startRow + i, false);
             }
 
+            // Then highlight the current option
             {
                 int leftMargin = (consoleWidth - (GetPlainLength(options[currentOption]) + leftPaddings[currentOption] + rightPaddings[currentOption] + 4)) / 2;
                 PrintMenuLine(options[currentOption], leftPaddings[currentOption], rightPaddings[currentOption], leftMargin, startRow + currentOption, true);
             }
 
+            // Display the instructions to use the menu
             string instructions = "Use arrow keys to navigate, Enter to select.";
             int instructionsLeftMargin = (int)Math.Floor((double)(consoleWidth - instructions.Length) / 2);
             int instructionsRow = startRow + options.Length + 4;
@@ -333,6 +357,7 @@ namespace GreedSimulation
             Console.WriteLine(instructions);
             Console.ResetColor();
 
+            // Allow the user to go up and down through the menu and if the user clicks enter return the current option
             while (true)
             {
                 ConsoleKeyInfo keyInfo = Console.ReadKey(true);
@@ -341,16 +366,17 @@ namespace GreedSimulation
                 if (keyInfo.Key == ConsoleKey.UpArrow)
                 {
                     currentOption--;
-                    if (currentOption < 0) currentOption = options.Length - 1;
+                    if (currentOption < 0) currentOption = options.Length - 1; // Loop around to the bottom if at the top
                 } else if (keyInfo.Key == ConsoleKey.DownArrow)
                 {
                     currentOption++;
-                    if (currentOption >= options.Length) currentOption = 0;
+                    if (currentOption >= options.Length) currentOption = 0; // Loop around to the top if at the bottom
                 } else if (keyInfo.Key == ConsoleKey.Enter)
                 {
                     return currentOption;
                 }
 
+                // If the option changes then update the lines needed
                 if (currentOption != previousOption)
                 {
                     {
@@ -366,6 +392,7 @@ namespace GreedSimulation
             }
         }
 
+        // A way to get default settings, only used if no settings file is found
         static simulationSettings GetDefaultSettings()
         {
             simulationSettings settings = new simulationSettings();
@@ -383,6 +410,7 @@ namespace GreedSimulation
             return settings;
         }
 
+        // Load the simulation settings from a binary file
         static simulationSettings LoadSettings(string filePath)
         {
             if (!File.Exists(filePath))
@@ -413,6 +441,7 @@ namespace GreedSimulation
             return settings;
         }
 
+        // Save the simulation settings to the binary file
         static bool SaveSettings(simulationSettings settings, string filePath)
         {
             try
@@ -452,6 +481,7 @@ namespace GreedSimulation
                 string[] options = { "Default", "Oscillatory Coexistence", "Competitive Exclusion", "Stable Coexistence", "%rdBack" };
                 int selectedOption = Menu(options);
 
+                // For each of the possible options load the binary file that it should
                 switch (selectedOption)
                 {
                     case 0:
@@ -553,6 +583,7 @@ namespace GreedSimulation
 
         static void SimulationSettings(ref double preyGrowthRate, ref double predatorGrowthRate, ref double preyCarryingCapacity, ref double predatorCarryingCapacity, ref double competitionCoefficient12, ref double competitionCoefficient21, ref double initialPreyPopulation, ref double initialPredatorPopulation, ref double timeStep, ref double simulationTime, ref bool displayGraph)
         {
+            // The lower and upper recommended bounds for each valuem stored as a dictionary for easy access
             Dictionary<string, valueBounds> bounds = new Dictionary<string, valueBounds>
             {
                 { "preyGrowthRate", new valueBounds { lower = 0.1, upper = 2 } },
@@ -570,9 +601,11 @@ namespace GreedSimulation
             while (true)
             {
                 Console.Clear();
+                // Every option with its current value
                 string[] options = { $"Prey Growth Rate: {preyGrowthRate}", $"Predator Growth Rate: {predatorGrowthRate}", $"Prey Carrying Capacity: {preyCarryingCapacity}", $"Predator Carrying Capacity: {predatorCarryingCapacity}", $"Competition Coeffiecient 12: {competitionCoefficient12}", $"Competition Coeffiecient 21: {competitionCoefficient21}", $"Initial Prey Population: {initialPreyPopulation}", $"Initial Predator Population: {initialPredatorPopulation}", $"Time Step: {timeStep}", $"Simulation Time: {simulationTime}", $"Display Graph: {displayGraph}", "%gnSave %gnSettings", "%rdCancel", "%ylLoad %ylPreset %ylSettings" };
                 int selectedOption = Menu(options);
 
+                // A switch of every option, with checking and trying to parse into the value type it needs, everything is hard coded in
                 switch (selectedOption)
                 {
                     case 0:
