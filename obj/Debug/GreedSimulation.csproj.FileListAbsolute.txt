@@ -6,3 +6,11 @@ C:\Users\helen\Favorites\Downloads\GreedSimulation\obj\Debug\GreedSimulation.csp
 C:\Users\helen\Favorites\Downloads\GreedSimulation\obj\Debug\GreedSimulation.exe
 C:\Users\helen\Favorites\Downloads\GreedSimulation\obj\Debug\GreedSimulation.pdb
 C:\Users\helen\Favorites\Downloads\GreedSimulation\obj\Debug\GreedSimulation.exe.config
+\\store\studenthomes\2024\24DF4532\CompSci\GreedSimulation\bin\Debug\GreedSimulation.exe.config
+\\store\studenthomes\2024\24DF4532\CompSci\GreedSimulation\bin\Debug\GreedSimulation.exe
+\\store\studenthomes\2024\24DF4532\CompSci\GreedSimulation\bin\Debug\GreedSimulation.pdb
+\\store\studenthomes\2024\24DF4532\CompSci\GreedSimulation\obj\Debug\GreedSimulation.csproj.AssemblyReference.cache
+\\store\studenthomes\2024\24DF4532\CompSci\GreedSimulation\obj\Debug\GreedSimulation.exe.config
+\\store\studenthomes\2024\24DF4532\CompSci\GreedSimulation\obj\Debug\GreedSimulation.csproj.CoreCompileInputs.cache
+\\store\studenthomes\2024\24DF4532\CompSci\GreedSimulation\obj\Debug\GreedSimulation.exe
+\\store\studenthomes\2024\24DF4532\CompSci\GreedSimulation\obj\Debug\GreedSimulation.pdb
