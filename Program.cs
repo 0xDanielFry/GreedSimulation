@@ -52,6 +52,7 @@ namespace GreedSimulation
             // Add the inital data to the results
             results.Add(new timeFrame { time = 0, preyPopulation = preyPopulation, predatorPopulation = predatorPopulation });
 
+            // Go through the Competitive Lotka-Volterra equation step by step as I cannot do differentiation
             for (double time = timeStep; time <= simulationTime; time += timeStep)
             {
                 time = Math.Round(time, 3); // To avoid the random 0.00000000001 thing
@@ -204,7 +205,7 @@ namespace GreedSimulation
                 {
                     string marker = text.Substring(i, 3);
                     switch (marker)
-                    {   // Every colour from ConsoleColor
+                    {   // Every colour from ConsoleColor, as its looping through the text, add 3 for colours to skip their other characters
                         case "%bk": Console.ForegroundColor = ConsoleColor.Black; i += 3; break;
                         case "%db": Console.ForegroundColor = ConsoleColor.DarkBlue; i += 3; break;
                         case "%dg": Console.ForegroundColor = ConsoleColor.DarkGreen; i += 3; break;
@@ -221,7 +222,7 @@ namespace GreedSimulation
                         case "%mg": Console.ForegroundColor = ConsoleColor.Magenta; i += 3; break;
                         case "%yl": Console.ForegroundColor = ConsoleColor.Yellow; i += 3; break;
                         case "%wh": Console.ForegroundColor = ConsoleColor.White; i += 3; break;
-                        default: // Reset the colour if its not in the list.
+                        default: // Reset the colour if its not in the list, only add 1 as its the character by itself, not to do with any others
                             Console.ResetColor();
                             i++;
                             break;
@@ -253,6 +254,7 @@ namespace GreedSimulation
                 {
                     string marker = text.Substring(i, 3);
 
+                    // If there is a colour marker then don't count it for the length, and count the characters after it until a space
                     if (marker == "%bk" || marker == "%db" || marker == "%dg" || marker == "%dc" ||
                         marker == "%dr" || marker == "%dm" || marker == "%dy" || marker == "%gy" ||
                         marker == "%dx" || marker == "%bl" || marker == "%gn" || marker == "%cy" ||
@@ -309,6 +311,7 @@ namespace GreedSimulation
                 fullText = "  " + new string(' ', leftPadding) + originalText + new string(' ', rightPadding) + "  ";
             }
 
+            // Set the placement of the cursor depending on values provided, then write the text with the colouring
             Console.SetCursorPosition(leftMargin, row);
             WriteColouredText(fullText);
         }
@@ -348,7 +351,7 @@ namespace GreedSimulation
                 PrintMenuLine(options[currentOption], leftPaddings[currentOption], rightPaddings[currentOption], leftMargin, startRow + currentOption, true);
             }
 
-            // Display the instructions to use the menu
+            // Display the instructions on how to use the menu
             string instructions = "Use arrow keys to navigate, Enter to select.";
             int instructionsLeftMargin = (int)Math.Floor((double)(consoleWidth - instructions.Length) / 2);
             int instructionsRow = startRow + options.Length + 4;
@@ -376,7 +379,7 @@ namespace GreedSimulation
                     return currentOption;
                 }
 
-                // If the option changes then update the lines needed
+                // If the option changes then update the lines needed for the new option and the old option
                 if (currentOption != previousOption)
                 {
                     {
@@ -413,11 +416,13 @@ namespace GreedSimulation
         // Load the simulation settings from a binary file
         static simulationSettings LoadSettings(string filePath)
         {
+            // If the file isn't a thing then return the default settings
             if (!File.Exists(filePath))
             {
                 return GetDefaultSettings();
             }
 
+            // If there is a settings file, then get all the settings
             simulationSettings settings = new simulationSettings();
 
             using (FileStream fileStream = File.OpenRead(filePath))
@@ -444,6 +449,7 @@ namespace GreedSimulation
         // Save the simulation settings to the binary file
         static bool SaveSettings(simulationSettings settings, string filePath)
         {
+            // Try to save the settings to the file and return true, if it doesn't work then display an error and return false
             try
             {
                 using (FileStream fileStream = File.Create(filePath))
@@ -478,10 +484,12 @@ namespace GreedSimulation
             while (true)
             {
                 Console.Clear();
+                // The options for presets
                 string[] options = { "Default", "Oscillatory Coexistence", "Competitive Exclusion", "Stable Coexistence", "%rdBack" };
                 int selectedOption = Menu(options);
 
-                // For each of the possible options load the binary file that it should
+                // For each of the possible options load the binary file that it should, if for some reason the files are missing they will just give the default settings
+                // This could all be hard coded in but assuming the files are there it would make no difference
                 switch (selectedOption)
                 {
                     case 0:
@@ -605,7 +613,7 @@ namespace GreedSimulation
                 string[] options = { $"Prey Growth Rate: {preyGrowthRate}", $"Predator Growth Rate: {predatorGrowthRate}", $"Prey Carrying Capacity: {preyCarryingCapacity}", $"Predator Carrying Capacity: {predatorCarryingCapacity}", $"Competition Coeffiecient 12: {competitionCoefficient12}", $"Competition Coeffiecient 21: {competitionCoefficient21}", $"Initial Prey Population: {initialPreyPopulation}", $"Initial Predator Population: {initialPredatorPopulation}", $"Time Step: {timeStep}", $"Simulation Time: {simulationTime}", $"Display Graph: {displayGraph}", "%gnSave %gnSettings", "%rdCancel", "%ylLoad %ylPreset %ylSettings" };
                 int selectedOption = Menu(options);
 
-                // A switch of every option, with checking and trying to parse into the value type it needs, everything is hard coded in
+                // A switch of every option, with checking and trying to parse into the value type it needs
                 switch (selectedOption)
                 {
                     case 0:
@@ -922,6 +930,7 @@ namespace GreedSimulation
                         CentreText("Should the graph display: (Y/Yes/True | N/No/False) ");
                         while (true)
                         {
+                            // .ToLower() so any capitalisation is accepted
                             string input = Console.ReadLine().ToLower();
                             if (input == "y" || input == "yes" || input == "true" || input == "n" || input == "no" || input == "false")
                             {
@@ -945,6 +954,7 @@ namespace GreedSimulation
                         {
                             Console.Clear();
 
+                            // Save the new settings to the settings.bin file
                             simulationSettings settings = new simulationSettings
                             {
                                 preyGrowthRate = preyGrowthRate,
@@ -977,6 +987,7 @@ namespace GreedSimulation
                             Console.Clear();
                             CentreText("Cancelling settings changes.");
 
+                            // Return the settings to what is in the settings.bin file
                             simulationSettings settings = LoadSettings("settings.bin");
 
                             preyGrowthRate = settings.preyGrowthRate;
@@ -996,6 +1007,7 @@ namespace GreedSimulation
                         }
                     case 13:
                         {
+                            // Go to the simulation presets menu
                             LoadSimulationPresets(ref preyGrowthRate, ref predatorGrowthRate, ref preyCarryingCapacity, ref predatorCarryingCapacity, ref competitionCoefficient12, ref competitionCoefficient21, ref initialPreyPopulation, ref initialPredatorPopulation, ref timeStep, ref simulationTime, ref displayGraph);
                             break;
                         }
@@ -1010,6 +1022,7 @@ namespace GreedSimulation
         [STAThread]
         static void Main(string[] args)
         {
+            // Load the settings
             simulationSettings settings = LoadSettings("settings.bin");
 
             double preyGrowthRate = settings.preyGrowthRate;
@@ -1024,19 +1037,24 @@ namespace GreedSimulation
             double simulationTime = settings.simulationTime;
             bool displayGraph = settings.displayGraph;
 
+            // To make the console output just look better
             Console.Title = "Greed Simulation";
             Console.CursorVisible = false;
             Console.Clear();
             CentreText("Welcome to the Greed Simulation!");
             System.Threading.Thread.Sleep(2000);
 
+            // While loop to keep program going unless exit is selected.
             while (true)
             {
+                // A list to be used for the results
                 List<timeFrame> results = new List<timeFrame>();
 
+                // Everything has its own console title so the user can easily see what they are on
                 Console.Title = "Greed Simulation - Menu";
                 Console.Clear();
 
+                // Main menu options, every option here has colouring
                 string[] options = { "%gnStart %gnSimulation", "%blSimulation %blSettings", "%rdExit %rdProgram" };
                 int selectedOption = Menu(options);
 
@@ -1045,8 +1063,10 @@ namespace GreedSimulation
                     case 0:
                         Console.Title = "Greed Simulation - Simulation";
                         Console.Clear();
+                        // Start the simulation and put the results into the results list
                         results = Simulate(preyGrowthRate, predatorGrowthRate, preyCarryingCapacity, predatorCarryingCapacity, competitionCoefficient12, competitionCoefficient21, initialPreyPopulation, initialPredatorPopulation, timeStep, simulationTime);
                         
+                        // If the setting for displaying the graph is true then display the graph...
                         if (displayGraph)
                         {
                             CentreText("Displaying the graph.");
@@ -1054,7 +1074,7 @@ namespace GreedSimulation
                             System.Threading.Thread.Sleep(1000);
                         } else
                         {
-                            CentreText("Press any key to continue.");
+                            Console.WriteLine("\n\nPress any key to continue.");
                             Console.ReadKey();
                         }
 
@@ -1063,11 +1083,13 @@ namespace GreedSimulation
                         Console.ReadKey();
                         break;
                     case 1:
+                        // Go to the settings menu
                         Console.Title = "Greed Simulation - Settings";
                         Console.Clear();
                         SimulationSettings(ref preyGrowthRate, ref predatorGrowthRate, ref preyCarryingCapacity, ref predatorCarryingCapacity, ref competitionCoefficient12, ref competitionCoefficient21, ref initialPreyPopulation, ref initialPredatorPopulation, ref timeStep, ref simulationTime, ref displayGraph);
                         break;
                     case 2:
+                        // Exits the program after 1 second
                         Console.Title = "Greed Simulation - Exiting";
                         Console.Clear();
                         CentreText("Exiting program...");
