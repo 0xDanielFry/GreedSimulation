@@ -289,7 +289,16 @@ namespace GreedSimulation
 
         static void PrintMenuLine(string originalText, int leftPadding, int rightPadding, int leftMargin, int row, bool isHighlighted)
         {
-            string fullText = (isHighlighted ? "> " : "  ") + new string(' ', leftPadding) + originalText + new string(' ', rightPadding) + (isHighlighted ? " <" : "  ");
+            // Depending if it should be highlighted depends on what the full text is, both are the same length in characters
+            string fullText;
+            if (isHighlighted)
+            {
+                fullText = "> " + new string(' ', leftPadding) + originalText + new string(' ', rightPadding) + " <";
+            } else
+            {
+                fullText = "  " + new string(' ', leftPadding) + originalText + new string(' ', rightPadding) + "  ";
+            }
+
             Console.SetCursorPosition(leftMargin, row);
             WriteColouredText(fullText);
         }
