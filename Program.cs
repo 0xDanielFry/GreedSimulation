@@ -216,7 +216,7 @@ namespace GreedSimulation
                         case "%gy": Console.ForegroundColor = ConsoleColor.Gray; i += 3; break;
                         case "%dx": Console.ForegroundColor = ConsoleColor.DarkGray; i += 3; break;
                         case "%bl": Console.ForegroundColor = ConsoleColor.Blue; i += 3; break;
-                        case "%gn": Console.ForegroundColor = ConsoleColor.Green; i += 3; break;
+                        case "%gn": Console.BackgroundColor = ConsoleColor.Green; i += 3; break;
                         case "%cy": Console.ForegroundColor = ConsoleColor.Cyan; i += 3; break;
                         case "%rd": Console.ForegroundColor = ConsoleColor.Red; i += 3; break;
                         case "%mg": Console.ForegroundColor = ConsoleColor.Magenta; i += 3; break;
